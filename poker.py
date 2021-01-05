@@ -1,7 +1,9 @@
 import random
+import numpy as np
+import matplotlib.pyplot as plt
 
 # Suit doesnt matter for blackjack
-NUM_DECKS = 6
+NUM_DECKS = 2
 deck_base = list(range(1, 14))
 k52_DECK = []
 for _ in range(4): k52_DECK += deck_base
@@ -28,9 +30,9 @@ def convert_card_to_value(card):
     else:
         return card
 
-n = 100000
+n = 10000
 num_busts = 0
-hand_sums = []
+nonbust_hand_sums = []
 for _ in range(n):
     # Shuffle the deck
     deck = shuffle(BASE_DECK)
@@ -82,17 +84,39 @@ for _ in range(n):
                     "Value =", card_val, SEPARATOR,
                     "Sum: {}".format(sum(dealer_hand)))
             else:
-                hand_sums.append(hand_value)
+                nonbust_hand_sums.append(hand_value)
                 break
         elif hand_value > 21:
             num_busts += 1
             print("BUST")
             break
         else:
-            hand_sums.append(hand_value)
+            nonbust_hand_sums.append(hand_value)
             break
     print("------------------------------------------")
 
+data = np.asarray(nonbust_hand_sums)
+print(np.mean(data))
+print("Runs: {}".format(n))
+print("Busts: {}".format(num_busts))
+print("Mean: {}".format(round(np.mean(data), 2)))
+print("Median: {}".format(np.median(data)))
+print("Std: {}".format(round(np.std(data), 2)))
 
-print("Runs: {}     Busts: {}      Avg Value: {}".format(n, num_busts, sum(hand_sums)/(n-num_busts)))
+freqs = {}
+values = list(range(17, 22))
+for elem in data:
+    if elem in freqs:
+        freqs[elem] += 1
+    else:
+        freqs[elem] = 1
+freqs_list = np.array([freqs[v] for v in values])
+freqs_list = freqs_list / sum(freqs_list)
+plt.scatter(values, freqs_list, color="black", s=100)
+plt.plot(values, freqs_list, color="navy")
+#plt.hist(data, bins=5, align="mid")
+plt.title("Distribution of Non Bust Dealer Hands")
+plt.xticks(range(17, 22))
+plt.savefig("nonbust_graph.jpg")
+print("Image exported")
 
