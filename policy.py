@@ -2,6 +2,10 @@ import numpy as np
 from blackjack import Blackjack
 
 class Policy:
+    """This class is useful for implementing hardcoded policies. Note that the
+    Blackjack class is used to translate a file into the blackjack policy. A random
+    policy can also be created.
+    """
     def __init__(self, action_dim, state_dim, policy_file=None, random=False):
         self.action_dim = action_dim
         self.state_dim = state_dim

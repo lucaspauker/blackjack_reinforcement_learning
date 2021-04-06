@@ -2,12 +2,15 @@ import numpy as np
 from blackjack import Blackjack
 
 class QLearning:
+    """Class that tracks and updates Q values in a table.
+    """
     def __init__(self, action_dim, state_dim):
         self.action_dim = action_dim
         self.state_dim = state_dim
 
-        self.Q = np.zeros((self.state_dim, self.action_dim))
+        # N is a matrix of counts of each (state, action) pair
         self.N = np.zeros((self.state_dim, self.action_dim))
+        self.Q = np.zeros((self.state_dim, self.action_dim))
 
         self.alpha = 0.01  # Learning rate
         self.epsilon = 1  # For e-greedy policy
@@ -38,16 +41,9 @@ class QLearning:
 
     def update_alpha(self, t, n):
         self.alpha = 1 / t
-        #pass
 
     def update_epsilon(self, t, n):
-        #if t < n / 2:
-        #    self.epsilon = 1
-        #else:
-        #    self.epsilon = (n - t) / n
         self.epsilon = 1 / t
-        #self.epsilon = 0.1
-        #epsilon = 1
 
     def get_optimal_action(self, state_num):
         max_Q = self.Q[state_num][0]
@@ -59,6 +55,9 @@ class QLearning:
         return arg_max
 
     def policy(self, state_num):
+        """Epsilon-greedy policy. Chooses a random action with probability epsilon
+        and the highest Q-value action with probability 1 - epsilon
+        """
         if np.random.uniform() < 1 - self.epsilon:
             return self.get_optimal_action(state_num)
         return int(np.random.uniform() * self.action_dim)

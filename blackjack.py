@@ -5,6 +5,8 @@ k52_DECK = []
 for _ in range(4): k52_DECK += deck_base
 
 class Blackjack:
+    """Implementation of blackjack where the dealer hits soft 17.
+    """
     def __init__(self, num_decks, player_hand=None, hole_card=-1):
         self.num_decks = num_decks
         self.deck = []
@@ -21,7 +23,8 @@ class Blackjack:
         self.player_turn_over = False
 
     def get_random_hand(self, value):
-        """Two card hand.
+        """Gets a random two card hand. Picks a random two cards given the inputted
+        card sum value.
         """
         hand = []
         first_cards = list(range(max(2, value - 11), min(11, value - 2) + 1))
@@ -34,6 +37,9 @@ class Blackjack:
         return hand
 
     def set_initial_state(self, state):
+        """Sets the state (player hand and dealer hole card) given a numerical state
+        input.
+        """
         if state == 0: return  # Special case
 
         hole_card = (state - 1) % 10 + 1
@@ -42,11 +48,13 @@ class Blackjack:
         assert(Blackjack.get_state_number(value, soft, hole_card) == state)
 
         hand = self.get_random_hand(value)
-        # Disregard soft for now
+        # Soft hands are under-represented
         self.player_hand = hand
         self.hole_card = hole_card
 
     def hand_value(self, hand):
+        """Returns the value of the blackjack hand
+        """
         value = sum(hand)
         soft = False
         num_as = 0
@@ -63,14 +71,16 @@ class Blackjack:
 
     @staticmethod
     def get_state_number(value, soft, hole_card):
-        """State number zero is the termination state
-        value is in range [4, 21] --> 18 possibilities
-        soft is True or False --> 2 possibilites
-        hole card is in range [1, 10] --> 10 possibilities
+        """State number 0 is the termination state. Note that:
+           - value is in range [4, 21] --> 18 possibilities
+           - soft is True or False --> 2 possibilites
+           - hole card is in range [1, 10] --> 10 possibilities
         """
         return (value - 4) * (2 * 10) + (int(soft)) * 10 + (hole_card - 1) + 1
 
     def get_state(self):
+        """Gets a representation of the state of value, soft boolean, and hole card.
+        """
         if len(self.player_hand) == 0 or len(self.dealer_hand) == 0:
             return -1
         value, soft = self.hand_value(self.player_hand)
@@ -94,7 +104,8 @@ class Blackjack:
         return self.player_turn_over
 
     def take_action(self, a):
-        """stay, hit"""
+        """There are two actions supported: staying and hitting (0, 1) respectively.
+        """
         if a == 0:
             self.player_turn_over = True
         elif a == 1:
@@ -110,7 +121,7 @@ class Blackjack:
     def dealer_turn(self):
         while True:
             value, soft = self.hand_value(self.dealer_hand)
-            if soft and value == 17:
+            if soft and value == 17:  # Dealer hits on soft 17s
                 self.dealer_hand.append(self.deck[self.deck_pointer])
                 self.deck_pointer += 1
             elif value <= 16:
@@ -120,7 +131,8 @@ class Blackjack:
                 break
 
     def get_reward(self):
-        """Get the reward once the game is over"""
+        """Get the reward once the game is over, indicating who won the game.
+        """
         assert(self.player_turn_over)
         if self.hand_value(self.player_hand)[0] > 21:
             return -10
@@ -133,6 +145,8 @@ class Blackjack:
             return -10
 
 def play_blackjack():
+    """Play blackjack with user input.
+    """
     num_decks = 6
     env = Blackjack(num_decks)
     env.shuffle_deck()
@@ -160,10 +174,10 @@ def play_blackjack():
         print("Tie game.")
 
 if __name__ == "__main__":
-    if False:
+    if True:
         play_blackjack()
 
-    if True:
+    if False:
         num_decks = 6
         env = Blackjack(num_decks, [1, 1], 1)
         env.shuffle_deck()
